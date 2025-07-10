@@ -38,7 +38,7 @@ supabase start
 # - API URL: http://127.0.0.1:54321
 # - Studio URL: http://127.0.0.1:54323
 # - DB URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
-# - anon key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+# - anon key: [ローカル開発用のanon key]
 ```
 
 ### 5. Next.jsプロジェクト初期化
