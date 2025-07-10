@@ -71,6 +71,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxxx
 - Supabaseの認証・セキュリティ設定に注意
 - レスポンシブデザイン対応必須
 - アクセシビリティ配慮
+- **UIデザインを実装する際は必ず`UI_DESIGN_RULES.md`を確認し、記載されているデザインルールに従うこと**
 
 ## デプロイ
 
