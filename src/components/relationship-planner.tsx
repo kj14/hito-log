@@ -1,0 +1,177 @@
+'use client';
+
+import { FormEvent, useMemo, useState } from 'react';
+
+import { Relationship, LifeProfile } from '../types/planner';
+import { calculateRelationshipProjection } from '../lib/relationships';
+import { formatDuration } from '../lib/time';
+
+interface RelationshipPlannerProps {
+  selfProfile: LifeProfile;
+  relationships: Relationship[];
+  onRelationshipsChange: (next: Relationship[]) => void;
+}
+
+const EMPTY_RELATIONSHIP: Omit<Relationship, 'id'> = {
+  name: '',
+  birthDate: '1990-01-01',
+  lifeExpectancyYears: 85,
+  meetingIntervalDays: 7,
+  averageSessionMinutes: 120,
+};
+
+export function RelationshipPlanner({
+  selfProfile,
+  relationships,
+  onRelationshipsChange,
+}: RelationshipPlannerProps) {
+  const [form, setForm] = useState(EMPTY_RELATIONSHIP);
+
+  const projections = useMemo(
+    () => relationships.map((relationship) => calculateRelationshipProjection(selfProfile, relationship)),
+    [relationships, selfProfile],
+  );
+
+  const resetForm = () => setForm(EMPTY_RELATIONSHIP);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const newRelationship: Relationship = {
+      id: crypto.randomUUID(),
+      ...form,
+    };
+    onRelationshipsChange([...relationships, newRelationship]);
+    resetForm();
+  };
+
+  const handleRemove = (id: string) => {
+    onRelationshipsChange(relationships.filter((relationship) => relationship.id !== id));
+  };
+
+  const updateField = <K extends keyof typeof form>(field: K, value: (typeof form)[K]) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <section className="space-y-6 rounded-2xl border border-white/10 bg-slate-950/90 p-6 text-slate-100 shadow-lg">
+      <header className="space-y-2">
+        <h2 className="text-lg font-semibold">人間関係の時間共有</h2>
+        <p className="text-sm text-slate-300">
+          会える頻度とセッション時間を入力すると、残り会合回数と共有時間を試算します。
+        </p>
+      </header>
+
+      <form className="grid gap-4 rounded-xl border border-white/5 bg-white/5 p-4" onSubmit={handleSubmit}>
+        <h3 className="text-sm font-semibold text-slate-200">関係を追加</h3>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-xs uppercase tracking-wide text-slate-400">名前</span>
+            <input
+              className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+              value={form.name}
+              required
+              onChange={(event) => updateField('name', event.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-xs uppercase tracking-wide text-slate-400">生年月日</span>
+            <input
+              type="date"
+              className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+              value={form.birthDate}
+              onChange={(event) => updateField('birthDate', event.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-xs uppercase tracking-wide text-slate-400">想定寿命（年）</span>
+            <input
+              type="number"
+              min={1}
+              step={0.5}
+              className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+              value={form.lifeExpectancyYears}
+              onChange={(event) => updateField('lifeExpectancyYears', Number(event.target.value))}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-xs uppercase tracking-wide text-slate-400">会う間隔（日）</span>
+            <input
+              type="number"
+              min={1}
+              className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+              value={form.meetingIntervalDays}
+              onChange={(event) => updateField('meetingIntervalDays', Number(event.target.value))}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-xs uppercase tracking-wide text-slate-400">平均セッション（分）</span>
+            <input
+              type="number"
+              min={1}
+              className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+              value={form.averageSessionMinutes}
+              onChange={(event) => updateField('averageSessionMinutes', Number(event.target.value))}
+            />
+          </label>
+        </div>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200"
+          >
+            追加する
+          </button>
+        </div>
+      </form>
+
+      <div className="overflow-x-auto rounded-xl border border-white/5">
+        <table className="min-w-full divide-y divide-white/10 text-left text-sm">
+          <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-400">
+            <tr>
+              <th className="px-4 py-3">名前</th>
+              <th className="px-4 py-3">残り時間</th>
+              <th className="px-4 py-3">残り会合回数</th>
+              <th className="px-4 py-3">共有予定時間</th>
+              <th className="px-4 py-3">操作</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {projections.length === 0 && (
+              <tr>
+                <td className="px-4 py-6 text-center text-slate-400" colSpan={5}>
+                  まだ関係が登録されていません。身近な人から追加してみましょう。
+                </td>
+              </tr>
+            )}
+            {projections.map((projection) => (
+              <tr key={projection.relationship.id} className="bg-slate-900/40">
+                <td className="px-4 py-3">
+                  <div className="font-medium text-white">{projection.relationship.name}</div>
+                  <div className="text-xs text-slate-400">
+                    年齢 {projection.otherOverview.ageYears.toFixed(1)} 歳
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-slate-200">
+                  {formatDuration(projection.pairRemainingSeconds)}
+                </td>
+                <td className="px-4 py-3 text-slate-200">{projection.remainingMeetings.toLocaleString()} 回</td>
+                <td className="px-4 py-3 text-slate-200">
+                  {(projection.totalSharedHours).toFixed(1)} 時間
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    type="button"
+                    className="rounded-md border border-white/20 px-3 py-1 text-xs text-slate-200 hover:border-red-400 hover:text-red-300"
+                    onClick={() => handleRemove(projection.relationship.id)}
+                  >
+                    削除
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}

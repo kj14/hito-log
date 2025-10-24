@@ -1,103 +1,100 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+
+import { LifeCountdown } from '../components/life-countdown';
+import { RelationshipPlanner } from '../components/relationship-planner';
+import { GoalTracker } from '../components/goal-tracker';
+import { Goal, LifeProfile, Relationship } from '../types/planner';
+
+const DEFAULT_PROFILE: LifeProfile = {
+  name: 'あなた',
+  birthDate: '1990-01-01',
+  lifeExpectancyYears: 84,
+};
+
+const INITIAL_RELATIONSHIPS: Relationship[] = [
+  {
+    id: 'rel-1',
+    name: '母',
+    birthDate: '1965-05-12',
+    lifeExpectancyYears: 88,
+    meetingIntervalDays: 30,
+    averageSessionMinutes: 180,
+  },
+  {
+    id: 'rel-2',
+    name: '親友',
+    birthDate: '1991-09-02',
+    lifeExpectancyYears: 84,
+    meetingIntervalDays: 14,
+    averageSessionMinutes: 120,
+  },
+];
+
+const INITIAL_GOALS: Goal[] = [
+  {
+    id: 'goal-1',
+    title: 'TOEIC 900 点突破',
+    category: '学習',
+    targetEffortHours: 200,
+    targetDate: new Date(new Date().getFullYear(), 11, 31).toISOString().slice(0, 10),
+    motivationNote: '海外クライアントとの商談を一人で担当できるようになる',
+    logs: [
+      {
+        id: 'log-1',
+        loggedAt: new Date().toISOString(),
+        minutes: 45,
+      },
+      {
+        id: 'log-2',
+        loggedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+        minutes: 30,
+      },
+    ],
+  },
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [profile, setProfile] = useState<LifeProfile>(DEFAULT_PROFILE);
+  const [relationships, setRelationships] = useState<Relationship[]>(INITIAL_RELATIONSHIPS);
+  const [goals, setGoals] = useState<Goal[]>(INITIAL_GOALS);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-16 text-slate-100">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-24 pt-12 md:px-8">
+        <header className="rounded-3xl border border-white/10 bg-slate-950/80 p-8 shadow-2xl">
+          <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">HITO LOG</p>
+          <h1 className="mt-4 text-3xl font-bold leading-tight md:text-4xl">
+            人生の時間を「見える化」し、<br className="hidden sm:block" />誰と何に投資するかを設計する
+          </h1>
+          <p className="mt-4 max-w-3xl text-base text-slate-300">
+            ライフカウントダウン・人間関係・目標の 3 つの軸から、残り時間を定量化するプロトタイプです。
+            まずは入力を編集し、今の自分の時間感覚を確かめてみましょう。
+          </p>
+          <ul className="mt-6 grid gap-4 text-sm text-slate-200 md:grid-cols-3">
+            <li className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <span className="font-semibold text-emerald-300">01.</span> 人生の残り時間をリアルタイムに把握
+            </li>
+            <li className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <span className="font-semibold text-sky-300">02.</span> 大切な人との共有時間を試算
+            </li>
+            <li className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <span className="font-semibold text-amber-300">03.</span> 目標達成に必要なペースを確認
+            </li>
+          </ul>
+        </header>
+
+        <LifeCountdown profile={profile} onProfileChange={setProfile} />
+
+        <RelationshipPlanner
+          selfProfile={profile}
+          relationships={relationships}
+          onRelationshipsChange={setRelationships}
+        />
+
+        <GoalTracker goals={goals} onGoalsChange={setGoals} />
+      </div>
+    </main>
   );
 }
