@@ -122,7 +122,6 @@ export function LifeCountdown({ profile, onProfileChange }: LifeCountdownProps) 
                 <PolarAngleAxis type="number" domain={[0, 100]} tick={false} angleAxisId={0} />
                 <RadialBar
                   background
-                  clockWise
                   dataKey="value"
                   cornerRadius={40}
                   fill="url(#life-progress)"
