@@ -96,6 +96,7 @@ services:
     environment:
       - NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=[ローカル開発用のanon key]
+      - SUPABASE_SERVICE_ROLE_KEY=[開発用 service role key]
     depends_on:
       - db
     command: npm run dev
@@ -126,13 +127,19 @@ npm install @supabase/supabase-js next-pwa recharts @types/node @types/react @ty
 ```env
 NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=[ローカル開発用のanon key]
+SUPABASE_SERVICE_ROLE_KEY=[開発用 service role key]
 ```
+
+> `SUPABASE_SERVICE_ROLE_KEY` はサーバー専用のシークレットです。ローカルの Supabase CLI を使用している場合は `supabase/.env` に生成される `SERVICE_ROLE_KEY` をコピーしてください。フロントエンドに公開しないよう注意します。
 
 ### 8. Docker開発起動
 
 ```sh
 # Supabase起動
 supabase start
+
+# スキーマを最新状態に更新（初回およびマイグレーション追加後）
+supabase db reset
 
 # Next.jsアプリ起動
 docker-compose up --build
@@ -174,11 +181,20 @@ npm install @supabase/supabase-js next-pwa recharts @types/node @types/react @ty
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
+
+> Supabase のダッシュボードから `service_role` キーを取得し、`.env.local` にのみ設定します。クライアント側へは公開しません。
 
 ### 5. ローカル開発起動
 
 ```sh
+# Supabase を起動
+supabase start
+
+# マイグレーションとシードを適用
+supabase db reset
+
 npm run dev
 ```
 
