@@ -62,17 +62,17 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-16 text-slate-100">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-24 pt-12 md:px-8">
-        <header className="rounded-3xl border border-white/10 bg-slate-950/80 p-8 shadow-2xl">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-24 pt-10 sm:pt-12 md:px-8">
+        <header className="rounded-3xl border border-white/10 bg-slate-950/80 p-6 shadow-2xl sm:p-8">
           <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">HITO LOG</p>
-          <h1 className="mt-4 text-3xl font-bold leading-tight md:text-4xl">
+          <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-[2rem] md:text-4xl">
             人生の時間を「見える化」し、<br className="hidden sm:block" />誰と何に投資するかを設計する
           </h1>
-          <p className="mt-4 max-w-3xl text-base text-slate-300">
+          <p className="mt-4 max-w-3xl text-sm text-slate-300 sm:text-base">
             ライフカウントダウン・人間関係・目標の 3 つの軸から、残り時間を定量化するプロトタイプです。
             まずは入力を編集し、今の自分の時間感覚を確かめてみましょう。
           </p>
-          <ul className="mt-6 grid gap-4 text-sm text-slate-200 md:grid-cols-3">
+          <ul className="mt-6 grid gap-4 text-sm text-slate-200 sm:grid-cols-2 md:grid-cols-3">
             <li className="rounded-xl border border-white/10 bg-white/5 p-4">
               <span className="font-semibold text-emerald-300">01.</span> 人生の残り時間をリアルタイムに把握
             </li>

@@ -56,7 +56,7 @@ export function LifeCountdown({ profile, onProfileChange }: LifeCountdownProps) 
   };
 
   return (
-    <section className="space-y-6 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-950 to-black p-6 text-slate-100 shadow-xl">
+    <section className="space-y-6 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-950 to-black p-5 text-slate-100 shadow-xl sm:p-6">
       <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-lg font-semibold">人生カウントダウン</h2>
@@ -64,12 +64,12 @@ export function LifeCountdown({ profile, onProfileChange }: LifeCountdownProps) 
             平均寿命に対する経過時間と残り時間をリアルタイムに表示します。
           </p>
         </div>
-        <div className="text-right text-sm text-emerald-300">
+        <div className="text-sm text-emerald-300 md:text-right">
           消化率 {formatPercentage(overview.progress)}
         </div>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1.15fr,0.85fr]">
+      <div className="grid gap-6 lg:grid-cols-[1.15fr,0.85fr] lg:items-start">
         <div className="space-y-3">
           <label className="flex flex-col gap-1">
             <span className="text-xs uppercase tracking-wide text-slate-400">名前</span>
@@ -104,7 +104,7 @@ export function LifeCountdown({ profile, onProfileChange }: LifeCountdownProps) 
           </label>
         </div>
         <div className="grid gap-4 rounded-xl border border-white/10 bg-black/40 p-4">
-          <div className="relative flex h-64 items-center justify-center">
+          <div className="relative flex h-56 items-center justify-center sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart
                 data={chartData}
@@ -135,7 +135,7 @@ export function LifeCountdown({ profile, onProfileChange }: LifeCountdownProps) 
               <p className="text-xs text-slate-400">残り {formatDuration(overview.remainingSeconds)}</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 sm:text-base">
             <div className="rounded-lg bg-white/5 p-3">
               <p className="text-xs text-slate-400">現在の年齢</p>
               <p className="text-lg font-semibold text-white">

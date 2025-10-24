@@ -75,7 +75,7 @@ export function RelationshipPlanner({
   };
 
   return (
-    <section className="space-y-6 rounded-2xl border border-white/10 bg-slate-950/90 p-6 text-slate-100 shadow-lg">
+    <section className="space-y-6 rounded-2xl border border-white/10 bg-slate-950/90 p-5 text-slate-100 shadow-lg sm:p-6">
       <header className="space-y-2">
         <h2 className="text-lg font-semibold">人間関係の時間共有</h2>
         <p className="text-sm text-slate-300">
@@ -85,7 +85,7 @@ export function RelationshipPlanner({
 
       <form className="grid gap-4 rounded-xl border border-white/5 bg-white/5 p-4" onSubmit={handleSubmit}>
         <h3 className="text-sm font-semibold text-slate-200">関係を追加</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-xs uppercase tracking-wide text-slate-400">名前</span>
             <input
@@ -136,7 +136,7 @@ export function RelationshipPlanner({
             />
           </label>
         </div>
-        <div className="flex justify-end">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="submit"
             className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200"
@@ -149,7 +149,7 @@ export function RelationshipPlanner({
       {chartData.length > 0 ? (
         <div className="rounded-xl border border-white/10 bg-slate-900/60 p-4">
           <h3 className="mb-3 text-sm font-semibold text-slate-200">共有時間と残り会合の可視化</h3>
-          <div className="h-72">
+          <div className="h-64 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                 <defs>
@@ -212,54 +212,82 @@ export function RelationshipPlanner({
         </p>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-white/5">
-        <table className="min-w-full divide-y divide-white/10 text-left text-sm">
-          <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-400">
-            <tr>
-              <th className="px-4 py-3">名前</th>
-              <th className="px-4 py-3">残り時間</th>
-              <th className="px-4 py-3">残り会合回数</th>
-              <th className="px-4 py-3">共有予定時間</th>
-              <th className="px-4 py-3">操作</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {projections.length === 0 && (
-              <tr>
-                <td className="px-4 py-6 text-center text-slate-400" colSpan={5}>
-                  まだ関係が登録されていません。身近な人から追加してみましょう。
-                </td>
-              </tr>
-            )}
+      {projections.length > 0 && (
+        <>
+          <div className="hidden overflow-x-auto rounded-xl border border-white/5 md:block">
+            <table className="min-w-full divide-y divide-white/10 text-left text-sm">
+              <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-400">
+                <tr>
+                  <th className="px-4 py-3">名前</th>
+                  <th className="px-4 py-3">残り時間</th>
+                  <th className="px-4 py-3">残り会合回数</th>
+                  <th className="px-4 py-3">共有予定時間</th>
+                  <th className="px-4 py-3">操作</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {projections.map((projection) => (
+                  <tr key={projection.relationship.id} className="bg-slate-900/40">
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-white">{projection.relationship.name}</div>
+                      <div className="text-xs text-slate-400">
+                        年齢 {projection.otherOverview.ageYears.toFixed(1)} 歳
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-200">
+                      {formatDuration(projection.pairRemainingSeconds)}
+                    </td>
+                    <td className="px-4 py-3 text-slate-200">{projection.remainingMeetings.toLocaleString()} 回</td>
+                    <td className="px-4 py-3 text-slate-200">{projection.totalSharedHours.toFixed(1)} 時間</td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        className="rounded-md border border-white/20 px-3 py-1 text-xs text-slate-200 hover:border-red-400 hover:text-red-300"
+                        onClick={() => handleRemove(projection.relationship.id)}
+                      >
+                        削除
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="grid gap-3 md:hidden">
             {projections.map((projection) => (
-              <tr key={projection.relationship.id} className="bg-slate-900/40">
-                <td className="px-4 py-3">
-                  <div className="font-medium text-white">{projection.relationship.name}</div>
-                  <div className="text-xs text-slate-400">
-                    年齢 {projection.otherOverview.ageYears.toFixed(1)} 歳
+              <article key={projection.relationship.id} className="space-y-2 rounded-xl border border-white/10 bg-slate-900/60 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h4 className="text-base font-semibold text-white">{projection.relationship.name}</h4>
+                    <p className="text-xs text-slate-400">年齢 {projection.otherOverview.ageYears.toFixed(1)} 歳</p>
                   </div>
-                </td>
-                <td className="px-4 py-3 text-slate-200">
-                  {formatDuration(projection.pairRemainingSeconds)}
-                </td>
-                <td className="px-4 py-3 text-slate-200">{projection.remainingMeetings.toLocaleString()} 回</td>
-                <td className="px-4 py-3 text-slate-200">
-                  {(projection.totalSharedHours).toFixed(1)} 時間
-                </td>
-                <td className="px-4 py-3">
                   <button
                     type="button"
-                    className="rounded-md border border-white/20 px-3 py-1 text-xs text-slate-200 hover:border-red-400 hover:text-red-300"
+                    className="rounded-md border border-white/20 px-2 py-1 text-[11px] text-slate-200 hover:border-red-400 hover:text-red-300"
                     onClick={() => handleRemove(projection.relationship.id)}
                   >
                     削除
                   </button>
-                </td>
-              </tr>
+                </div>
+                <dl className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
+                  <div className="rounded-lg bg-white/5 p-3">
+                    <dt className="text-[10px] uppercase tracking-wide text-slate-400">残り時間</dt>
+                    <dd className="mt-1 font-semibold text-slate-100">{formatDuration(projection.pairRemainingSeconds)}</dd>
+                  </div>
+                  <div className="rounded-lg bg-white/5 p-3">
+                    <dt className="text-[10px] uppercase tracking-wide text-slate-400">残り会合</dt>
+                    <dd className="mt-1 font-semibold text-slate-100">{projection.remainingMeetings.toLocaleString()} 回</dd>
+                  </div>
+                  <div className="rounded-lg bg-white/5 p-3">
+                    <dt className="text-[10px] uppercase tracking-wide text-slate-400">共有予定時間</dt>
+                    <dd className="mt-1 font-semibold text-slate-100">{projection.totalSharedHours.toFixed(1)} 時間</dd>
+                  </div>
+                </dl>
+              </article>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </>
+      )}
     </section>
   );
 }

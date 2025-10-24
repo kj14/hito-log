@@ -103,7 +103,7 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
   };
 
   return (
-    <section className="space-y-6 rounded-2xl border border-white/10 bg-slate-900/90 p-6 text-slate-100 shadow-lg">
+    <section className="space-y-6 rounded-2xl border border-white/10 bg-slate-900/90 p-5 text-slate-100 shadow-lg sm:p-6">
       <header className="space-y-2">
         <h2 className="text-lg font-semibold">目標達成トラッキング</h2>
         <p className="text-sm text-slate-300">
@@ -113,7 +113,7 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
 
       <form className="grid gap-4 rounded-xl border border-white/5 bg-white/5 p-4" onSubmit={handleSubmit}>
         <h3 className="text-sm font-semibold text-slate-200">目標を追加</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-xs uppercase tracking-wide text-slate-400">目標名</span>
             <input
@@ -152,7 +152,7 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
               onChange={(event) => updateField('targetDate', event.target.value)}
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm md:col-span-2 lg:col-span-3">
+          <label className="flex flex-col gap-1 text-sm sm:col-span-2 lg:col-span-3">
             <span className="text-xs uppercase tracking-wide text-slate-400">モチベーションメモ</span>
             <textarea
               rows={2}
@@ -163,7 +163,7 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
             />
           </label>
         </div>
-        <div className="flex justify-end">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="submit"
             className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200"
@@ -188,26 +188,26 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
           const yDomainMax = Math.max(goal.targetEffortHours, maxLoggedHours) * 1.1 || 1;
 
           return (
-            <article key={goal.id} className="space-y-3 rounded-xl border border-white/10 bg-slate-950/80 p-4">
-            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-              <div>
-                <h3 className="text-base font-semibold text-white">{goal.title}</h3>
-                {goal.category && <p className="text-xs uppercase tracking-wide text-amber-300">{goal.category}</p>}
-                {goal.motivationNote && (
-                  <p className="mt-2 text-sm text-slate-300">{goal.motivationNote}</p>
-                )}
+            <article key={goal.id} className="space-y-3 rounded-xl border border-white/10 bg-slate-950/80 p-4 sm:p-5">
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-white">{goal.title}</h3>
+                  {goal.category && <p className="text-xs uppercase tracking-wide text-amber-300">{goal.category}</p>}
+                  {goal.motivationNote && (
+                    <p className="mt-2 text-sm text-slate-300">{goal.motivationNote}</p>
+                  )}
+                </div>
+                <div className="text-sm text-slate-300 md:text-right">
+                  目標日: {goal.targetDate}
+                </div>
               </div>
-              <div className="text-right text-sm text-slate-300">
-                目標日: {goal.targetDate}
-              </div>
-            </div>
 
-            <dl className="grid gap-3 text-sm md:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-lg bg-white/5 p-3">
-                <dt className="text-xs uppercase tracking-wide text-slate-400">進捗率</dt>
-                <dd className="text-lg font-semibold text-amber-300">{(stats.progressRatio * 100).toFixed(1)}%</dd>
-              </div>
-              <div className="rounded-lg bg-white/5 p-3">
+              <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-lg bg-white/5 p-3">
+                  <dt className="text-xs uppercase tracking-wide text-slate-400">進捗率</dt>
+                  <dd className="text-lg font-semibold text-amber-300">{(stats.progressRatio * 100).toFixed(1)}%</dd>
+                </div>
+                <div className="rounded-lg bg-white/5 p-3">
                 <dt className="text-xs uppercase tracking-wide text-slate-400">残り時間</dt>
                 <dd className="text-lg font-semibold text-white">{Math.max(0, Math.round(stats.remainingMinutes)).toLocaleString()} 分</dd>
               </div>
@@ -231,10 +231,10 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
               </div>
             </dl>
 
-            <div className="rounded-lg border border-white/10 bg-slate-900/50 p-4">
-              <h4 className="text-xs uppercase tracking-wide text-slate-400">投資時間の推移</h4>
-              {timeline.length > 0 ? (
-                <div className="mt-3 h-48 w-full">
+              <div className="rounded-lg border border-white/10 bg-slate-900/50 p-4">
+                <h4 className="text-xs uppercase tracking-wide text-slate-400">投資時間の推移</h4>
+                {timeline.length > 0 ? (
+                  <div className="mt-3 h-48 w-full sm:h-56">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={timeline} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                       <defs>
@@ -298,14 +298,14 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
                   実績ログが追加されると推移グラフが表示されます。
                 </p>
               )}
-            </div>
-
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="text-xs text-slate-400">
-                ログ数 {goal.logs.length} 件 / 実績合計 {Math.round(stats.totalLoggedMinutes)} 分
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span>今日のログを追加:</span>
+
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="text-xs text-slate-400">
+                  ログ数 {goal.logs.length} 件 / 実績合計 {Math.round(stats.totalLoggedMinutes)} 分
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="text-xs text-slate-300">今日のログを追加:</span>
                 {[15, 30, 60].map((minutes) => (
                   <button
                     key={minutes}
@@ -324,8 +324,8 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
                   削除
                 </button>
               </div>
-            </div>
-          </article>
+              </div>
+            </article>
           );
         })}
       </div>
