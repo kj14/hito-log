@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from 'recharts';
 
 import { LifeProfile } from '../types/planner';
 import {
@@ -34,6 +35,22 @@ export function LifeCountdown({ profile, onProfileChange }: LifeCountdownProps) 
     [profile, now],
   );
 
+  const progressPercent = useMemo(() => {
+    const raw = overview.progress * 100;
+    const clamped = Math.min(100, Math.max(0, raw));
+    return Number(clamped.toFixed(2));
+  }, [overview.progress]);
+
+  const chartData = useMemo(
+    () => [
+      {
+        name: '経過',
+        value: progressPercent,
+      },
+    ],
+    [progressPercent],
+  );
+
   const handleFieldChange = <K extends keyof LifeProfile>(field: K, value: LifeProfile[K]) => {
     onProfileChange({ ...profile, [field]: value });
   };
@@ -52,7 +69,7 @@ export function LifeCountdown({ profile, onProfileChange }: LifeCountdownProps) 
         </div>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-[1.15fr,0.85fr]">
         <div className="space-y-3">
           <label className="flex flex-col gap-1">
             <span className="text-xs uppercase tracking-wide text-slate-400">名前</span>
@@ -87,21 +104,48 @@ export function LifeCountdown({ profile, onProfileChange }: LifeCountdownProps) 
           </label>
         </div>
         <div className="grid gap-4 rounded-xl border border-white/10 bg-black/40 p-4">
-          <div>
-            <p className="text-xs text-slate-400">現在の年齢</p>
-            <p className="text-2xl font-semibold text-white">
-              {overview.ageYears.toFixed(2)} <span className="text-sm text-slate-400">歳</span>
-            </p>
+          <div className="relative flex h-64 items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadialBarChart
+                data={chartData}
+                innerRadius="65%"
+                outerRadius="100%"
+                startAngle={90}
+                endAngle={-270}
+              >
+                <defs>
+                  <linearGradient id="life-progress" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#34d399" />
+                    <stop offset="100%" stopColor="#0ea5e9" />
+                  </linearGradient>
+                </defs>
+                <PolarAngleAxis type="number" domain={[0, 100]} tick={false} angleAxisId={0} />
+                <RadialBar
+                  background
+                  clockWise
+                  dataKey="value"
+                  cornerRadius={40}
+                  fill="url(#life-progress)"
+                />
+              </RadialBarChart>
+            </ResponsiveContainer>
+            <div className="absolute text-center">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">消化率</p>
+              <p className="text-3xl font-semibold text-white">{progressPercent.toFixed(1)}%</p>
+              <p className="text-xs text-slate-400">残り {formatDuration(overview.remainingSeconds)}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-slate-400">経過時間</p>
-            <p className="text-sm text-slate-200">{formatDuration(overview.elapsedSeconds)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-400">残り時間</p>
-            <p className="text-lg font-semibold text-emerald-300">
-              {formatDuration(overview.remainingSeconds)}
-            </p>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="rounded-lg bg-white/5 p-3">
+              <p className="text-xs text-slate-400">現在の年齢</p>
+              <p className="text-lg font-semibold text-white">
+                {overview.ageYears.toFixed(2)} <span className="text-xs text-slate-400">歳</span>
+              </p>
+            </div>
+            <div className="rounded-lg bg-white/5 p-3">
+              <p className="text-xs text-slate-400">経過時間</p>
+              <p className="text-sm text-slate-200">{formatDuration(overview.elapsedSeconds)}</p>
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,16 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { Goal } from '../types/planner';
 import { calculateGoalStats } from '../lib/goals';
@@ -17,6 +27,34 @@ const EMPTY_GOAL: Omit<Goal, 'id' | 'logs'> = {
   category: undefined,
   motivationNote: '',
 };
+
+type GoalTimelinePoint = {
+  date: string;
+  cumulativeHours: number;
+};
+
+function buildGoalTimeline(goal: Goal): GoalTimelinePoint[] {
+  if (goal.logs.length === 0) {
+    return [];
+  }
+
+  const groupedByDate = goal.logs.reduce<Record<string, number>>((acc, log) => {
+    const dateKey = log.loggedAt.slice(0, 10);
+    acc[dateKey] = (acc[dateKey] ?? 0) + log.minutes;
+    return acc;
+  }, {});
+
+  const sortedDates = Object.keys(groupedByDate).sort((a, b) => (a > b ? 1 : -1));
+  let cumulativeMinutes = 0;
+
+  return sortedDates.map((date) => {
+    cumulativeMinutes += groupedByDate[date];
+    return {
+      date,
+      cumulativeHours: Number((cumulativeMinutes / 60).toFixed(2)),
+    };
+  });
+}
 
 export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
   const [form, setForm] = useState(EMPTY_GOAL);
@@ -141,8 +179,16 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
             目標がまだ登録されていません。達成したいことを追加してみましょう。
           </p>
         )}
-        {statsList.map(({ goal, stats }) => (
-          <article key={goal.id} className="space-y-3 rounded-xl border border-white/10 bg-slate-950/80 p-4">
+        {statsList.map(({ goal, stats }) => {
+          const timeline = buildGoalTimeline(goal);
+          const maxLoggedHours = timeline.reduce(
+            (max, point) => Math.max(max, point.cumulativeHours),
+            0,
+          );
+          const yDomainMax = Math.max(goal.targetEffortHours, maxLoggedHours) * 1.1 || 1;
+
+          return (
+            <article key={goal.id} className="space-y-3 rounded-xl border border-white/10 bg-slate-950/80 p-4">
             <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-white">{goal.title}</h3>
@@ -185,6 +231,75 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
               </div>
             </dl>
 
+            <div className="rounded-lg border border-white/10 bg-slate-900/50 p-4">
+              <h4 className="text-xs uppercase tracking-wide text-slate-400">投資時間の推移</h4>
+              {timeline.length > 0 ? (
+                <div className="mt-3 h-48 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={timeline} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id={`goal-${goal.id}-area`} x1="0" x2="0" y1="0" y2="1">
+                          <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.9} />
+                          <stop offset="100%" stopColor="#0f172a" stopOpacity={0.1} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#94a3b8"
+                        tickLine={false}
+                        axisLine={{ stroke: 'rgba(148, 163, 184, 0.4)' }}
+                        tickFormatter={(value: string) => value.slice(5)}
+                      />
+                      <YAxis
+                        stroke="#94a3b8"
+                        tickLine={false}
+                        axisLine={{ stroke: 'rgba(148, 163, 184, 0.4)' }}
+                        width={60}
+                        domain={[0, yDomainMax]}
+                        tickFormatter={(value) => `${value.toFixed(0)}h`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                          borderRadius: 12,
+                          border: '1px solid rgba(148, 163, 184, 0.25)',
+                          color: '#e2e8f0',
+                        }}
+                        formatter={(value: number | string) => {
+                          const numericValue = typeof value === 'number' ? value : Number(value);
+                          if (Number.isNaN(numericValue)) {
+                            return [String(value), '累積投資'];
+                          }
+                          return [`${numericValue.toFixed(2)} 時間`, '累積投資'];
+                        }}
+                        labelFormatter={(value: string) => `日付: ${value}`}
+                      />
+                      <ReferenceLine
+                        y={goal.targetEffortHours}
+                        stroke="#38bdf8"
+                        strokeDasharray="4 4"
+                        label={{ value: '目標時間', position: 'insideTopRight', fill: '#38bdf8' }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="cumulativeHours"
+                        stroke="#fbbf24"
+                        strokeWidth={2}
+                        fill={`url(#goal-${goal.id}-area)`}
+                        dot={{ r: 3, strokeWidth: 1, stroke: '#fbbf24' }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-slate-400">
+                  実績ログが追加されると推移グラフが表示されます。
+                </p>
+              )}
+            </div>
+
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="text-xs text-slate-400">
                 ログ数 {goal.logs.length} 件 / 実績合計 {Math.round(stats.totalLoggedMinutes)} 分
@@ -211,7 +326,8 @@ export function GoalTracker({ goals, onGoalsChange }: GoalTrackerProps) {
               </div>
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

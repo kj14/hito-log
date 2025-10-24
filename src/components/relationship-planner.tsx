@@ -1,6 +1,17 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { Relationship, LifeProfile } from '../types/planner';
 import { calculateRelationshipProjection } from '../lib/relationships';
@@ -30,6 +41,17 @@ export function RelationshipPlanner({
   const projections = useMemo(
     () => relationships.map((relationship) => calculateRelationshipProjection(selfProfile, relationship)),
     [relationships, selfProfile],
+  );
+
+  const chartData = useMemo(
+    () =>
+      projections.map((projection) => ({
+        id: projection.relationship.id,
+        name: projection.relationship.name,
+        sharedHours: Number(projection.totalSharedHours.toFixed(1)),
+        remainingMeetings: projection.remainingMeetings,
+      })),
+    [projections],
   );
 
   const resetForm = () => setForm(EMPTY_RELATIONSHIP);
@@ -123,6 +145,72 @@ export function RelationshipPlanner({
           </button>
         </div>
       </form>
+
+      {chartData.length > 0 ? (
+        <div className="rounded-xl border border-white/10 bg-slate-900/60 p-4">
+          <h3 className="mb-3 text-sm font-semibold text-slate-200">共有時間と残り会合の可視化</h3>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="shared-hours" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#0f172a" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={{ stroke: 'rgba(148, 163, 184, 0.4)' }} />
+                <YAxis
+                  yAxisId="left"
+                  orientation="left"
+                  stroke="#94a3b8"
+                  tickLine={false}
+                  axisLine={{ stroke: 'rgba(148, 163, 184, 0.4)' }}
+                  label={{ value: '共有時間 (時間)', angle: -90, position: 'insideLeft', fill: '#94a3b8', offset: 10 }}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="#94a3b8"
+                  tickLine={false}
+                  axisLine={{ stroke: 'rgba(148, 163, 184, 0.4)' }}
+                  label={{ value: '残り会合回数', angle: 90, position: 'insideRight', fill: '#94a3b8', offset: 10 }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    borderRadius: 12,
+                    border: '1px solid rgba(148, 163, 184, 0.25)',
+                    color: '#e2e8f0',
+                  }}
+                  formatter={(value: number | string, name: string) => {
+                    const numericValue = typeof value === 'number' ? value : Number(value);
+                    if (Number.isNaN(numericValue)) {
+                      return [value, name];
+                    }
+
+                    return name === 'sharedHours'
+                      ? [`${numericValue.toLocaleString()} 時間`, '共有時間']
+                      : [`${Math.round(numericValue).toLocaleString()} 回`, '残り会合'];
+                  }}
+                />
+                <Legend
+                  verticalAlign="top"
+                  height={36}
+                  wrapperStyle={{ color: '#e2e8f0' }}
+                  formatter={(value) => (value === 'sharedHours' ? '共有時間 (h)' : '残り会合 (回)')}
+                />
+                <Bar yAxisId="left" dataKey="sharedHours" fill="url(#shared-hours)" radius={[12, 12, 0, 0]} />
+                <Line yAxisId="right" type="monotone" dataKey="remainingMeetings" stroke="#fbbf24" strokeWidth={2} dot />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      ) : (
+        <p className="rounded-xl border border-dashed border-white/10 bg-slate-900/40 p-6 text-center text-sm text-slate-400">
+          登録された関係に基づく可視化は、データが追加されると表示されます。
+        </p>
+      )}
 
       <div className="overflow-x-auto rounded-xl border border-white/5">
         <table className="min-w-full divide-y divide-white/10 text-left text-sm">
